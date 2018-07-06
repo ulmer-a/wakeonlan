@@ -1,24 +1,11 @@
 /*
-	*** AU Software Research Application Suite ***
-		** Wake On LAN Network Broadcast **
-
-	This software program looks for an interface file
-	provided by the first command line argument and 
-	performs a Wake-On-Lan broadcast through the entire
-	local network with the first 48Bit from the interface
-	file used as MAC-Address. The program will always print
-	status and progress information on the command line.
-	Help, version and manpage should be installed. If not,
-	install the .deb package provided with this Software.
-
-	Written By Alexander Ulmer.
-	Copyright (C) 2015 AU Software Toolchain
-
-	The WakeOnLan software is part of the AU Software
-	Research Application Suite. This readme file has to be
-	included in every redistribution of this program.
-*/
-
+ * wake on LAN tool
+ *
+ * Written by Alexander Ulmer
+ * Copyright (C) 2015-2018
+ * All Rights reserved.
+ *
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
