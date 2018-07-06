@@ -10,10 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -61,7 +57,7 @@ int main (int argc, char *argv[])
     }
 
     // TODO: obtain mac address to wake up
-    mac_address_t mac_address = NULL;
+    mac_address_t mac_address = get_mac(argv[1]);
 
     error = wakeup(mac_address);
     if (error != E_SUCCESS)
