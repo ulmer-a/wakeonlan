@@ -17,12 +17,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define BROADCAST_ADDR "192.168.0.255"
-#define BROADCAST_PORT 7
-#define BROADCAST_SIZE 102
+#include "wakeup.h"
 
-#define HELP_FILE "/usr/share/iwakeonlan/help"
-#define VERS_FILE "/usr/share/iwakeonlan/version"
+// begin: to get rid of
 
 void print_mac (const char *mac)
 {
@@ -31,6 +28,8 @@ void print_mac (const char *mac)
         printf ("%02x:", (unsigned char)mac[i]);
     printf ("\b ");
 }
+
+
 char *get_mac (char *file)
 {
     int fd;
@@ -47,90 +46,30 @@ char *get_mac (char *file)
     read (fd, mac, 6);
     return mac;
 }
-int send_magic (int fd, const char *MAC_ADDR, struct sockaddr_in server)
-{
-    int i;
 
-    char       *UDP_PACKET      = (char*) malloc (BROADCAST_SIZE);
-    const char  MAGIC_NUMBER[]  = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+// end: to get rid of
 
-    memcpy (UDP_PACKET, MAGIC_NUMBER, 6);
-    for (i = 1; i <= 16; i++)
-        memcpy (UDP_PACKET + (6 * i), MAC_ADDR, 6);
-
-    if (sendto (fd, UDP_PACKET, BROADCAST_SIZE, 0, (struct sockaddr*)&server, sizeof (server)) < 0)
-        return errno;
-    return 0;
-}
-void print_doc (char *file)
-{
-    FILE *f;
-    f = fopen (file, "r");
-
-    if (f == NULL)
-        printf ("wakeonlan: help file not installed!\n");
-
-    char c;
-    while ((c = getc (f)) != EOF)
-        putchar (c);
-
-    fclose (f);
-}
 
 int main (int argc, char *argv[])
 {
-    int                 sock, err, pem;
-    struct sockaddr_in  server;
+	int error;
 
     if (argc < 2)
     {
-        print_doc (HELP_FILE);
-        return 3;
+        // TODO: print usage
+        exit(EXIT_SUCCESS);
     }
 
-    if (strcmp (argv[1], "-v") == 0)
+    // TODO: obtain mac address to wake up
+    mac_address_t mac_address = NULL;
+
+    error = wakeup(mac_address);
+    if (error != E_SUCCESS)
     {
-        print_doc (VERS_FILE);
-        return 0;
+    	fprintf(stderr,
+    			"wakeonlan: error: %s\n",
+    			strerror(error));
     }
-    else if (strcmp (argv[1], "-h") == 0)
-    {
-        print_doc (HELP_FILE);
-        return 0;
-    }
-
-    printf ("wakeonlan: loading interface ...\n");
-    const char *MAC_ADDR = get_mac (argv[1]);
-
-    printf ("Using interface '%s' with MAC ", argv[1]);
-    print_mac (MAC_ADDR);
-    printf ("...\n");
-
-    printf ("wakeonlan: preparing for broadcasting ...\n");
-
-    if ((sock = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
-    {
-        printf ("wakeonlan: could not create UDP socket.\n");
-        return 1;
-    }
-
-    pem = 1;
-    setsockopt (sock, SOL_SOCKET, SO_BROADCAST, &pem, sizeof (pem));
-
-    bzero (&server, sizeof (server));
-    server.sin_family       = AF_INET;
-    server.sin_addr.s_addr  = inet_addr (BROADCAST_ADDR);
-    server.sin_port         = htons     (BROADCAST_PORT);
-
-    printf ("wakeonlan: sending broadcast ...\n");
-    if ((err = send_magic (sock, MAC_ADDR, server)))
-    {
-        printf ("wakeonlan: failed to send broadcast (errno: %d)\n", err);
-        return 2;
-    }
-
-    close (sock);
-
-    printf ("wakeonlan: successfully broadcasted wake-up request!\n");
-    return 0;
+    
+    return EXIT_SUCCESS;
 }
